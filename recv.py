@@ -1,13 +1,5 @@
-import time, sys
+import time, sys, argparse
 from chirpsdk import ChirpConnect, CallbackSet
-
-chirp = ChirpConnect()
-
-chirp.start(send=False, receive=True)
-
-# identifier = 'hello'
-# payload = bytearray([ord(ch) for ch in identifier])
-# chirp.send(payload, blocking=True)
 
 class Callbacks(CallbackSet):
     def on_received(self, payload, channel):
@@ -17,15 +9,25 @@ class Callbacks(CallbackSet):
         else:
             print('Decode failed')
 
-chirp.set_callbacks(Callbacks())
+def main(blockname='default'):
+    chirp = ChirpConnect(block=blockname)
+    chirp.start(send=False, receive=True)
+    chirp.set_callbacks(Callbacks())
 
-try:
-        # Process audio streams
-    while True:
-        time.sleep(0.1)
-        sys.stdout.write('.')
-        sys.stdout.flush()
-except KeyboardInterrupt:
-    print('Exiting')
+    try:
+        print("SDK initialized successfully. Using",blockname,"configuration.")
+        while True:
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        print('Exiting')
 
-chirp.stop()
+    chirp.stop()
+
+if __name__ == '__main__': 
+    parser = argparse.ArgumentParser(description='Listen for chirps.')
+    parser.add_argument('-u', action='store_true', default=False, dest='ultrasonic',help='use ultrasonic protocol')
+    results = parser.parse_args()
+    if results.ultrasonic: 
+        main(blockname='ultrasonic')
+    else: 
+        main()
