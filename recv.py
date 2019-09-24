@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import time, sys, argparse
-from chirpsdk import ChirpConnect, CallbackSet
+from chirpsdk import ChirpSDK, CallbackSet
 
 class Callbacks(CallbackSet):
     def on_received(self, payload, channel):
@@ -11,7 +11,7 @@ class Callbacks(CallbackSet):
             print('Decode failed')
 
 def main(blockname='default'):
-    chirp = ChirpConnect(block=blockname)
+    chirp = ChirpSDK(block=blockname)
     chirp.start(send=False, receive=True)
     chirp.set_callbacks(Callbacks())
 

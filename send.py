@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 import time, sys, argparse
-from chirpsdk import ChirpConnect, CallbackSet
+from chirpsdk import ChirpSDK, CallbackSet
 
 
 def main(msg, blockname='default'):
-    chirp = ChirpConnect(block=blockname)
+    chirp = ChirpSDK(block=blockname)
     chirp.start(send=True, receive=False)
     print("Sending",len(msg),"bytes using",blockname,"configuration.")
     identifier = msg    
