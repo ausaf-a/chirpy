@@ -12,6 +12,7 @@ class Callbacks(CallbackSet):
 
 def main(blockname='default'):
     chirp = ChirpSDK(block=blockname)
+    chirp.input_sample_rate = 48000 #USB mic requires 48Khz to function
     chirp.start(send=False, receive=True)
     chirp.set_callbacks(Callbacks())
 
