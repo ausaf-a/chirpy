@@ -9,9 +9,15 @@ def main(msg, blockname='default'):
     print("Sending",len(msg),"bytes using",blockname,"configuration.")
     identifier = msg    
     payload = bytearray([ord(ch) for ch in identifier])
+
+    start = time.time()
     chirp.send(payload, blocking=True)
+    end = time.time()
+
+    print(end - start, "elapsed.")
     
     chirp.stop()
+
 
 if __name__ == '__main__': 
     parser = argparse.ArgumentParser(description='Send a chirp.')
@@ -21,4 +27,4 @@ if __name__ == '__main__':
     if results.ultrasonic: 
         main(results.msg, blockname='ultrasonic')
     else: 
-        main(results.msg)
+        main(results.msg, blockname='16khz')
