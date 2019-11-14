@@ -1,7 +1,6 @@
-import time, sys, argparse, random, json
+import time, os, sys, argparse, random, json
 from chirpsdk import ChirpSDK, CallbackSet, CHIRP_SDK_STATE_STOPPED
 from playsound import playsound
-
 timeSent = -1
 current = None
 
@@ -23,6 +22,7 @@ class Callbacks(CallbackSet):
             print('Decode failed')
         else:
             delay = time.time() - timeSent
+            current['decoded'] = True
             current['decode_delay'] = delay - current['receive_delay']
             print('Received data: ', ord(payload), end='\n\n')
 
@@ -32,13 +32,17 @@ test acoustic channel by sending and receiving prerecorded chirps
 '''
 def test(protocol, chirps):
     global timeSent, current 
-
+    
+    logdir = 'results/{}/'.format(time.strftime("%Y%m%d-%H%M%S"))
+    
+    os.makedirs(logdir, exist_ok=True)
+    
     if protocol == 'standard': 
         protocol = 'default'
     
     chirp = ChirpSDK(block=protocol, debug=True, config='config')
     
-    
+    chirp.audio.wav_filename = logdir + 'debug.wav'
     chirp.input_sample_rate = 48000 #USB mic requires 48Khz to function
     chirp.set_callbacks(Callbacks())
     chirp.start(send=False, receive=True)
@@ -54,14 +58,15 @@ def test(protocol, chirps):
             'decode_delay': -1
             }
         print('sending {}'.format(data))
-        playsound(chirp, block=False)
         timeSent = time.time()
+        playsound(chirp, block=True) #cannot play async
         time.sleep(1) 
         log.append(current)
     
     print('tests complete, saving results...')
-    with open('results/log-{}.json'.format(time.strftime("%Y%m%d-%H%M%S")), 'w') as outfile: 
-        json.dump({'log': log}, outfile)
+
+    with open(logdir+'log.json', 'w') as outfile: 
+        json.dump({'log': log}, outfile, indent=4)
     print('done.')
 
 
